@@ -1,101 +1,292 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageCircle, Heart, Eye } from "lucide-react";
+
+// Define interfaces for different content types
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  createdAt: any;
+  userId: string;
+  authorName?: string;
+  authorAvatar?: string;
+}
+
+interface Idea {
+  id: string;
+  text: string;
+  votes: number;
+  createdAt: any;
+  userId: string;
+  authorName?: string;
+  authorAvatar?: string;
+}
+
+interface Artwork {
+  id: string;
+  url: string;
+  name: string;
+  createdAt: any;
+  userId: string;
+  authorName?: string;
+  authorAvatar?: string;
+}
+
+interface Tournament {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  createdAt: any;
+  userId: string;
+  authorName?: string;
+  authorAvatar?: string;
+}
+
+// Add a helper function for getting initials safely
+const getInitials = (name?: string) => {
+  return name ? name[0].toUpperCase() : "?";
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { user } = useAuth();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        // Fetch recent events
+        const eventsQuery = query(
+          collection(db, "events"),
+          orderBy("createdAt", "desc"),
+          limit(3)
+        );
+        const eventsSnapshot = await getDocs(eventsQuery);
+        const eventsData = eventsSnapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as Event)
+        );
+
+        // Fetch popular ideas
+        const ideasQuery = query(
+          collection(db, "ideas"),
+          orderBy("votes", "desc"),
+          limit(3)
+        );
+        const ideasSnapshot = await getDocs(ideasQuery);
+        const ideasData = ideasSnapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as Idea)
+        );
+
+        // Fetch recent artworks
+        const artworksQuery = query(
+          collection(db, "artworks"),
+          orderBy("createdAt", "desc"),
+          limit(3)
+        );
+        const artworksSnapshot = await getDocs(artworksQuery);
+        const artworksData = artworksSnapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as Artwork)
+        );
+
+        // Fetch upcoming tournaments
+        const tournamentsQuery = query(
+          collection(db, "tournaments"),
+          orderBy("date", "asc"),
+          limit(3)
+        );
+        const tournamentsSnapshot = await getDocs(tournamentsQuery);
+        const tournamentsData = tournamentsSnapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as Tournament)
+        );
+
+        setEvents(eventsData);
+        setIdeas(ideasData);
+        setArtworks(artworksData);
+        setTournaments(tournamentsData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching content:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-3xl font-bold">News Feed</h1>
+
+      <Tabs defaultValue="all" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="ideas">Ideas</TabsTrigger>
+          <TabsTrigger value="gallery">Gallery</TabsTrigger>
+          <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-4">
+          {/* Events */}
+          {events.map((event) => (
+            <Card key={event.id}>
+              <CardHeader className="flex flex-row items-center gap-4 p-4">
+                <Avatar>
+                  <AvatarImage src={event.authorAvatar} />
+                  <AvatarFallback>
+                    {getInitials(event.authorName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold">{event.title}</h3>
+                  <p className="text-sm text-muted-foreground">{event.date}</p>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p>{event.description}</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  📍 {event.location}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Ideas */}
+          {ideas.map((idea) => (
+            <Card key={idea.id}>
+              <CardHeader className="flex flex-row items-center gap-4 p-4">
+                <Avatar>
+                  <AvatarImage src={idea.authorAvatar} />
+                  <AvatarFallback>
+                    {getInitials(idea.authorName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">
+                    {idea.authorName || "Anonymous"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Idea Submission
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p>{idea.text}</p>
+              </CardContent>
+              <CardFooter className="p-4 pt-0">
+                <Button variant="ghost" size="sm">
+                  <Heart className="h-4 w-4 mr-2" />
+                  {idea.votes} votes
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+
+          {/* Artworks */}
+          {artworks.map((artwork) => (
+            <Card key={artwork.id}>
+              <CardHeader className="flex flex-row items-center gap-4 p-4">
+                <Avatar>
+                  <AvatarImage src={artwork.authorAvatar} />
+                  <AvatarFallback>
+                    {getInitials(artwork.authorName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{artwork.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    by {artwork.authorName || "Anonymous"}
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <img
+                  src={artwork.url}
+                  alt={artwork.name}
+                  className="w-full rounded-lg"
+                />
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Tournaments */}
+          {tournaments.map((tournament) => (
+            <Card key={tournament.id}>
+              <CardHeader className="flex flex-row items-center gap-4 p-4">
+                <Avatar>
+                  <AvatarImage src={tournament.authorAvatar} />
+                  <AvatarFallback>
+                    {getInitials(tournament.authorName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold">{tournament.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {tournament.date}
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p>{tournament.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+
+        {/* Add separate tab contents for filtered views */}
+        <TabsContent value="events" className="space-y-4">
+          {/* Events only */}
+        </TabsContent>
+        <TabsContent value="ideas" className="space-y-4">
+          {/* Ideas only */}
+        </TabsContent>
+        <TabsContent value="gallery" className="space-y-4">
+          {/* Gallery only */}
+        </TabsContent>
+        <TabsContent value="tournaments" className="space-y-4">
+          {/* Tournaments only */}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
