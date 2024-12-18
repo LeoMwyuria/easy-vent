@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+// import { useAuth } from "@/hooks/useAuth";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,7 +13,8 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Heart, Eye } from "lucide-react";
+import {  Heart  } from "lucide-react";
+import Image from "next/image";
 
 // Define interfaces for different content types
 interface Event {
@@ -22,7 +23,7 @@ interface Event {
   description: string;
   date: string;
   location: string;
-  createdAt: any;
+  createdAt: unknown;
   userId: string;
   authorName?: string;
   authorAvatar?: string;
@@ -32,7 +33,7 @@ interface Idea {
   id: string;
   text: string;
   votes: number;
-  createdAt: any;
+  createdAt: unknown;
   userId: string;
   authorName?: string;
   authorAvatar?: string;
@@ -42,7 +43,7 @@ interface Artwork {
   id: string;
   url: string;
   name: string;
-  createdAt: any;
+  createdAt: unknown;
   userId: string;
   authorName?: string;
   authorAvatar?: string;
@@ -53,7 +54,7 @@ interface Tournament {
   title: string;
   description: string;
   date: string;
-  createdAt: any;
+  createdAt: unknown;
   userId: string;
   authorName?: string;
   authorAvatar?: string;
@@ -65,7 +66,7 @@ const getInitials = (name?: string) => {
 };
 
 export default function Home() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -240,11 +241,13 @@ export default function Home() {
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <img
-                  src={artwork.url}
-                  alt={artwork.name}
-                  className="w-full rounded-lg"
-                />
+              <Image
+  src={artwork.url}
+  alt={artwork.name}
+  width={800} // Adjust as needed
+  height={600} // Adjust as needed
+  className="rounded-lg"
+/>
               </CardContent>
             </Card>
           ))}

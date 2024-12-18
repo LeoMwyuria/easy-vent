@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Image from 'next/image';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -71,7 +72,13 @@ export default function Sidebar() {
     <div className="space-y-4 py-4 flex flex-col h-full bg-white dark:bg-gray-800 w-[300px] border-r">
       <div className="px-3 py-2">
         <Link href="/" className="flex items-center pl-3 mb-14">
-          <img src="/logo.svg" alt="Easyvent Logo" className="h-8 w-8 mr-2" />
+        <Image
+            src="/logo.svg"
+            alt="Easyvent Logo"
+            width={32}
+            height={32}
+            className="h-8 w-8 mr-2"
+          />
           <span className="text-lg font-bold">Easyvent</span>
         </Link>
       </div>

@@ -1,12 +1,11 @@
-"use client";
-
+"use client"
+import Image from 'next/image';
 import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 
-// Define interface for image/artwork structure
 interface Artwork {
   id: string;
   url: string;
@@ -51,12 +50,10 @@ export default function Gallery() {
     if (!file || !user) return;
 
     try {
-      // Upload image to Firebase Storage
       const storageRef = ref(storage, `artworks/${file.name}`);
       await uploadBytes(storageRef, file);
       const url = await getDownloadURL(storageRef);
 
-      // Add artwork data to Firestore
       const docRef = await addDoc(collection(db, "artworks"), {
         url,
         name: title,
@@ -64,7 +61,6 @@ export default function Gallery() {
         createdAt: new Date(),
       });
 
-      // Update local state
       setArtworks([
         ...artworks,
         {
@@ -75,7 +71,6 @@ export default function Gallery() {
         },
       ]);
 
-      // Reset form
       setFile(null);
       setTitle("");
     } catch (error) {
@@ -116,9 +111,11 @@ export default function Gallery() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {artworks.map((artwork) => (
           <div key={artwork.id} className="border rounded overflow-hidden">
-            <img
+            <Image
               src={artwork.url}
               alt={artwork.name}
+              width={400} // Adjust dimensions as needed
+              height={300}
               className="w-full h-48 object-cover"
             />
             <div className="p-4">

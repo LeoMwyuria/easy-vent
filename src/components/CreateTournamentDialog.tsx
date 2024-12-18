@@ -1,181 +1,121 @@
-"use client";
+import Image from 'next/image';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Music, Mountain, Utensils, Palette } from 'lucide-react';
 
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+export default function RightPanel() {
+  const stories = [
+    {
+      name: 'Sarah Chen',
+      image: '/placeholder.svg?height=100&width=100',
+      avatar: '/placeholder.svg?height=32&width=32'
+    },
+    {
+      name: 'Alex Kim',
+      image: '/placeholder.svg?height=100&width=100',
+      avatar: '/placeholder.svg?height=32&width=32'
+    }
+  ];
 
-interface CreateTournamentDialogProps {
-  onCreateTournament: (tournament: any) => void;
-}
+  const suggestions = [
+    {
+      name: 'Nick Shelburne',
+      avatar: '/placeholder.svg?height=40&width=40',
+      mutual: 12
+    },
+    {
+      name: 'Brittni Lando',
+      avatar: '/placeholder.svg?height=40&width=40',
+      mutual: 8
+    },
+    {
+      name: 'Ivan Shevchenko',
+      avatar: '/placeholder.svg?height=40&width=40',
+      mutual: 5
+    }
+  ];
 
-export function CreateTournamentDialog({
-  onCreateTournament,
-}: CreateTournamentDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    const tournament = {
-      title: formData.get("title"),
-      game: formData.get("game"),
-      platform: formData.get("platform"),
-      maxParticipants: formData.get("maxParticipants"),
-      startDate,
-      endDate,
-      image: "/placeholder.svg?height=300&width=400", // You would handle image upload here
-    };
-
-    onCreateTournament(tournament);
-    setOpen(false);
-    form.reset();
-  };
+  const recommendations = [
+    { icon: Palette, label: 'UI/UX', color: 'bg-blue-100 text-blue-700' },
+    { icon: Music, label: 'Music', color: 'bg-pink-100 text-pink-700' },
+    { icon: Utensils, label: 'Cooking', color: 'bg-amber-100 text-amber-700' },
+    { icon: Mountain, label: 'Hiking', color: 'bg-violet-100 text-violet-700' }
+  ];
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 transition-all duration-300">
-          Create Tournament
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-gray-900 text-white">
-        <DialogHeader>
-          <DialogTitle>Create New Tournament</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Tournament Title</Label>
-            <Input
-              id="title"
-              name="title"
-              placeholder="Enter tournament title"
-              className="bg-gray-800 border-gray-700"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="game">Game</Label>
-            <Select name="game" required>
-              <SelectTrigger className="bg-gray-800 border-gray-700">
-                <SelectValue placeholder="Select game" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pubg">PUBG</SelectItem>
-                <SelectItem value="apex">Apex Legends</SelectItem>
-                <SelectItem value="rocket-league">Rocket League</SelectItem>
-                <SelectItem value="warzone">Call of Duty: Warzone</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="platform">Platform</Label>
-            <Select name="platform" required>
-              <SelectTrigger className="bg-gray-800 border-gray-700">
-                <SelectValue placeholder="Select platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="playstation">PlayStation</SelectItem>
-                <SelectItem value="xbox">Xbox</SelectItem>
-                <SelectItem value="pc">PC</SelectItem>
-                <SelectItem value="all">All Platforms</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="maxParticipants">Max Participants</Label>
-            <Input
-              id="maxParticipants"
-              name="maxParticipants"
-              type="number"
-              min="2"
-              max="1000"
-              className="bg-gray-800 border-gray-700"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Start Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-gray-800 border-gray-700",
-                      !startDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP") : "Pick date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                 
-                </PopoverContent>
-              </Popover>
+    <div className="w-[380px] border-l bg-white dark:bg-gray-800 h-full">
+      <ScrollArea className="h-full">
+        <div className="p-6 space-y-8">
+          <section>
+            <h3 className="font-semibold mb-4 text-lg">Stories</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {stories.map((story, i) => (
+                <div key={i} className="relative group cursor-pointer">
+                  <div className="relative h-40 rounded-xl overflow-hidden">
+                    <Image
+                      src={story.image}
+                      alt={story.name}
+                      width={400}
+                      height={160}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="absolute bottom-2 left-2 flex items-center">
+                    <Avatar className="w-8 h-8 border-2 border-white">
+                      <AvatarImage src={story.avatar} />
+                      <AvatarFallback>{story.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <span className="ml-2 text-white text-sm font-medium drop-shadow-lg">
+                      {story.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
+          </section>
 
-            <div className="space-y-2">
-              <Label>End Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-gray-800 border-gray-700",
-                      !endDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "PPP") : "Pick date"}
+          <section>
+            <h3 className="font-semibold mb-4 text-lg">Suggestions</h3>
+            <div className="space-y-4">
+              {suggestions.map((suggestion, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Avatar>
+                      <AvatarImage src={suggestion.avatar} />
+                      <AvatarFallback>{suggestion.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{suggestion.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {suggestion.mutual} mutual friends
+                      </p>
+                    </div>
+                  </div>
+                  <Button variant="secondary" size="sm">
+                    Follow
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                 
-                </PopoverContent>
-              </Popover>
+                </div>
+              ))}
             </div>
-          </div>
+          </section>
 
-          <Button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          >
-            Create Tournament
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <section>
+            <h3 className="font-semibold mb-4 text-lg">Recommendations</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {recommendations.map((item, i) => (
+                <div
+                  key={i}
+                  className={`${item.color} rounded-xl p-4 flex flex-col items-center justify-center space-y-2 cursor-pointer hover:opacity-90 transition-opacity`}
+                >
+                  <item.icon className="h-6 w-6" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </ScrollArea>
+    </div>
   );
 }

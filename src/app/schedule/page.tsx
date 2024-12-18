@@ -90,16 +90,21 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow">
-          <h1 className="text-3xl font-bold text-gray-800">ჩემი ცხრილი</h1>
-          <ScheduleButton 
-  onScheduleUpdate={setSchedule} 
-  onLoadingChange={setLoading} 
-  onError={setError} 
-  hasExistingSchedule={!!schedule && Object.keys(schedule).length > 0} 
-/>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow">
+            <h1 className="text-3xl font-bold text-gray-800">ჩემი ცხრილი</h1>
+            <ScheduleButton 
+    onScheduleUpdate={setSchedule} 
+    onLoadingChange={setLoading} 
+    onError={setError} 
+    hasExistingSchedule={!!schedule && Object.keys(schedule).length > 0} 
+  />
+  {error && (
+    <div className="p-4 bg-red-100 text-red-700 rounded-lg shadow mb-4">
+      <p className="text-sm font-medium">{error}</p>
+    </div>
+  )}
         </div>
         
         <div className="space-y-6">

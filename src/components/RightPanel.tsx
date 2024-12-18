@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -52,9 +53,11 @@ export default function RightPanel() {
               {stories.map((story, i) => (
                 <div key={i} className="relative group cursor-pointer">
                   <div className="relative h-40 rounded-xl overflow-hidden">
-                    <img
+                    <Image
                       src={story.image}
-                      alt=""
+                      alt={story.name}
+                      width={400}
+                      height={160}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     />
                   </div>
@@ -116,4 +119,3 @@ export default function RightPanel() {
     </div>
   );
 }
-

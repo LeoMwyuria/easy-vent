@@ -4,7 +4,6 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
 
-// Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -44,7 +43,13 @@ export async function GET(request: Request) {
     }
     
     throw new Error('Schedule parsing incomplete');
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    if (error instanceof Error) {
+      // Error has a 'message' property
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    
+    // Fallback for unexpected error shapes
+    return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
   }
 }
