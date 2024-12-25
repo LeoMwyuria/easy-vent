@@ -1,16 +1,6 @@
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
 
-
-interface Lesson {
-  time: string;
-  room: string;
-  subject: string;
-  group: string;
-  lecturer: string;
-  additionalInfo: string;
-}
-
 export class BTUParser {
   private page!: Page;
   private browser!: Browser;
@@ -57,7 +47,7 @@ export class BTUParser {
     console.log('5. Schedule loaded successfully');
     
     const schedule = await this.page.evaluate(() => {
-      const schedule: Record<string, Lesson[]> = {};
+      const schedule: Record<string, any[]> = {};
       const table = document.querySelector('.table-responsive');
       const rows = table?.querySelectorAll('tr') || [];
       
