@@ -1,0 +1,16 @@
+{
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_DOWNLOAD": "false"
+    }
+  },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "installCommand": "npm install && npx puppeteer browsers install chrome"
+      }
+    }
+  ]
+}
