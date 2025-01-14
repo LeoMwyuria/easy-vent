@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Music, Mountain, Utensils, Palette } from "lucide-react";
 
 export default function RightPanel() {
   const stories = [
